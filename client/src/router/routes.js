@@ -9,6 +9,7 @@ import AccessDenied from '@/views/auth/AccessDenied.vue'
 import NotFound from '@/views/auth/NotFound.vue'
 import ContactUs from '@/views/home/ContactUs.vue'
 import ProductUpsert from '@/views/product/ProductUpsert.vue'
+import { useAuthStore } from '@/stores/authStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,6 +60,27 @@ const router = createRouter({
       component: NotFound,
     },
   ],
+})
+
+router.beforeEach(async (to, from, next) => {
+  // Global route guard can be added here
+  const authStore = useAuthStore()
+  const authRequiredRoutes = [APP_ROUTE_NAMES.ADD_PRODUCT, APP_ROUTE_NAMES.UPDATE_PRODUCT]
+
+  // if (authRequiredRoutes.includes(to.name) && !authStore.isAuthenticated) {
+  //   return next({ name: APP_ROUTE_NAMES.ACCESS_DENIED })
+  // }
+
+  // Check and refresh token if not authenticated
+  if (!authStore.isAuthenticated && authRequiredRoutes.includes(to.name)) {
+    try {
+      await authStore.refreshAuth()
+    } catch (error) {
+      console.log('No valid refresh token, user not authenticated', error)
+      return next({ name: APP_ROUTE_NAMES.SIGN_IN })
+    }
+  }
+  next()
 })
 
 export default router

@@ -14,12 +14,12 @@
               Premium Granite & Quartz for Every Style!
             </h1>
             <div class="input-group mt-3 mx-auto shadow-lg rounded-4" style="max-width: 700px">
-              <!-- <input
+              <input
                 type="text"
                 v-model="searchValue"
                 class="form-control border-0 py-3 px-4 fs-5"
                 placeholder="Search your favorite product..."
-              /> -->
+              />
             </div>
           </div>
         </div>
@@ -32,7 +32,7 @@
       <div class="row g-3 mb-4 align-items-center">
         <div class="col-md-auto">
           <div class="d-flex flex-wrap gap-3">
-            <!-- <button
+            <button
               @click="selectedCategory = category"
               v-for="(category, index) in categoryList"
               :key="index"
@@ -43,7 +43,7 @@
               }"
             >
               {{ category }}
-            </button> -->
+            </button>
           </div>
         </div>
         <div class="col-md-auto ms-md-auto">
@@ -72,7 +72,13 @@
       </div>
 
       <div>
-        <div v-if="filteredProductList.length > 0" class="row g-4 pb-4"></div>
+        <div v-if="filteredProductList.length > 0" class="row g-4 pb-4">
+          <ProductCard
+            v-for="product in filteredProductList"
+            :key="product.id"
+            :product="product"
+          />
+        </div>
         <div v-else>
           <h3 class="text-center">No Products Found</h3>
         </div>
@@ -82,9 +88,75 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
+import { getProducts } from '@/services/productService'
+import ProductCard from '@/components/product/ProductCard.vue'
+import {
+  PRODUCT_CATEGORIES,
+  SORT_OPTIONS,
+  SORT_PRICE_LOW_HIGH,
+  SORT_PRICE_HIGH_LOW,
+  SORT_NAME_A_Z,
+  SORT_NAME_Z_A,
+} from '@/constants/appConstants.js'
 
-const filteredProductList = ref([])
+const products = ref([])
+const loading = ref(false)
+const selectedSortOption = ref(SORT_OPTIONS[0])
+
+const searchValue = ref('')
+
+const selectedCategory = ref('All')
+const categoryList = ref(['All', ...PRODUCT_CATEGORIES])
+
+const fetchProducts = async () => {
+  try {
+    loading.value = true
+    const response = await getProducts()
+    products.value = response.data
+  } catch (error) {
+    console.error('Error fetching products:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const filteredProductList = computed(() => {
+  let filtered = products.value
+
+  if (selectedCategory.value !== 'All') {
+    filtered = filtered.filter((product) => product.category === selectedCategory.value)
+  }
+
+  if (searchValue.value.trim() !== '') {
+    filtered = filtered.filter((product) =>
+      product.name.toLowerCase().includes(searchValue.value.trim().toLowerCase()),
+    )
+  }
+
+  switch (selectedSortOption.value) {
+    case SORT_PRICE_LOW_HIGH:
+      filtered.sort((a, b) => a.price - b.price)
+      break
+    case SORT_PRICE_HIGH_LOW:
+      filtered.sort((a, b) => b.price - a.price)
+      break
+    case SORT_NAME_A_Z:
+      filtered.sort((a, b) => a.name.localeCompare(b.name))
+      break
+    case SORT_NAME_Z_A:
+      filtered.sort((a, b) => b.name.localeCompare(a.name))
+      break
+    default:
+      break
+  }
+
+  return filtered
+})
+
+onMounted(() => {
+  fetchProducts()
+})
 </script>
 
 <style scoped>
