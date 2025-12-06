@@ -43,24 +43,32 @@ exports.login = async (req, res) => {
         sameSite: "lax",
         path: "/",
       })
-      .json({ accessToken });
+      .json({
+        accessToken,
+        user: { id: user._id, email: user.email, role: user.role },
+      });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-exports.refresh = (req, res) => {
+exports.refresh = async (req, res) => {
   const token = req.cookies.refreshToken;
   if (!token) return res.status(401).json({ message: "No refresh token" });
 
-  jwt.verify(token, process.env.JWT_REFRESH_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_REFRESH_SECRET, async (err, user) => {
     if (err) return res.status(403).json({ message: "Invalid token" });
 
     const accessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "15m",
     });
 
-    res.json({ accessToken });
+    const findUser = await User.findOne({ _id: user.id });
+
+    res.json({
+      accessToken,
+      user: { id: findUser._id, email: findUser.email, role: findUser.role },
+    });
   });
 };
 

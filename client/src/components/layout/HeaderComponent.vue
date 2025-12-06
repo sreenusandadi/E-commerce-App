@@ -36,8 +36,19 @@
               >Add Product</router-link
             >
           </li>
+          <li class="nav-item">
+            <router-link
+              class="nav-link"
+              aria-current="page"
+              :to="{ name: APP_ROUTE_NAMES.CONTACT_US }"
+              >Contact Us</router-link
+            >
+          </li>
         </ul>
         <ul class="d-flex navbar-nav">
+          <li class="nav-item nav-link" v-if="authStore.isAuthenticatedCheck">
+            {{ `Welcome, ${authStore.user.email}` }}
+          </li>
           <li class="nav-item dropdown">
             <a
               class="nav-link dropdown-toggle"
@@ -61,7 +72,7 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item" v-if="!authStore.isAuthenticated">
+          <li class="nav-item" v-if="!authStore.isAuthenticatedCheck">
             <router-link
               class="nav-link"
               aria-current="page"
@@ -69,7 +80,7 @@
               >Signin</router-link
             >
           </li>
-          <li class="nav-item" v-if="!authStore.isAuthenticated">
+          <li class="nav-item" v-if="!authStore.isAuthenticatedCheck">
             <router-link
               class="nav-link"
               aria-current="page"
@@ -77,7 +88,7 @@
               >Signup</router-link
             >
           </li>
-          <li class="nav-item" v-if="authStore.isAuthenticated">
+          <li class="nav-item" v-if="authStore.isAuthenticatedCheck">
             <button class="nav-link btn btn-link" @click="authStore.logoutUser()">Logout</button>
           </li>
         </ul>

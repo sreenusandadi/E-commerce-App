@@ -43,16 +43,19 @@ const router = createRouter({
       path: '/products',
       name: APP_ROUTE_NAMES.PRODUCTS_LIST,
       component: ProductsList,
+      meta: { requiresAuth: true },
     },
     {
       path: '/add-product',
       name: APP_ROUTE_NAMES.ADD_PRODUCT,
       component: ProductUpsert,
+      meta: { requiresAuth: true },
     },
     {
       path: '/update-product/:id',
       name: APP_ROUTE_NAMES.UPDATE_PRODUCT,
       component: ProductUpsert,
+      meta: { requiresAuth: true },
     },
     {
       path: '/:pathMatch(.*)*',
@@ -62,23 +65,11 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, from, next) => {
-  // Global route guard can be added here
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  const authRequiredRoutes = [APP_ROUTE_NAMES.ADD_PRODUCT, APP_ROUTE_NAMES.UPDATE_PRODUCT]
 
-  // if (authRequiredRoutes.includes(to.name) && !authStore.isAuthenticated) {
-  //   return next({ name: APP_ROUTE_NAMES.ACCESS_DENIED })
-  // }
-
-  // Check and refresh token if not authenticated
-  if (!authStore.isAuthenticated && authRequiredRoutes.includes(to.name)) {
-    try {
-      await authStore.refreshAuth()
-    } catch (error) {
-      console.log('No valid refresh token, user not authenticated', error)
-      return next({ name: APP_ROUTE_NAMES.SIGN_IN })
-    }
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    return next({ name: APP_ROUTE_NAMES.SIGN_IN })
   }
   next()
 })

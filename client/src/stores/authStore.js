@@ -1,18 +1,27 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { refreshToken, signIn, signUp, signOut } from '@/services/authService'
+import { signIn, signUp, signOut } from '@/services/authService'
 import { APP_ROUTE_NAMES } from '@/constants/routeNames.js'
 
+export const defaultUser = {
+  id: '',
+  email: '',
+  role: '',
+}
+
 export const useAuthStore = defineStore('authStore', () => {
-  const user = ref(null)
   const isAuthenticated = ref(false)
   const error = ref(null)
   const loading = ref(false)
   const token = ref(null)
 
+  const user = reactive(defaultUser)
+
   const router = useRouter()
+
+  const isAuthenticatedCheck = computed(() => isAuthenticated.value)
 
   const registerUser = async (formData) => {
     loading.value = true
@@ -38,34 +47,19 @@ export const useAuthStore = defineStore('authStore', () => {
     try {
       const data = await signIn(credentials)
       token.value = data.accessToken
+      Object.assign(user, data.user)
       isAuthenticated.value = true
+      console.log(router)
       router.push({ name: APP_ROUTE_NAMES.HOME })
     } catch (err) {
-      console.log(err)
+      isAuthenticated.value = false
+      token.value = null
+      Object.assign(user, defaultUser)
       if (err.response?.status === 401 || err.response?.status === 404) {
         error.value = err.response.data.message
       } else {
         error.value = err.message
       }
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const refreshAuth = async () => {
-    loading.value = true
-    error.value = null
-    try {
-      const authData = await refreshToken()
-      token.value = authData.accessToken
-      isAuthenticated.value = true
-    } catch (err) {
-      if (err.response?.status === 401 || err.response?.status === 403) {
-        error.value = 'User should be signed in again, to access protected resources.'
-      } else {
-        error.value = err.message
-      }
-      throw err
     } finally {
       loading.value = false
     }
@@ -79,10 +73,13 @@ export const useAuthStore = defineStore('authStore', () => {
       isAuthenticated.value = false
       token.value = null
       error.value = null
+      Object.assign(user, defaultUser)
       router.push({ name: APP_ROUTE_NAMES.SIGN_IN })
     } catch (error) {
       console.log('Error during logout:', error)
       error.value = error.message
+    } finally {
+      loading.value = false
     }
   }
 
@@ -93,10 +90,12 @@ export const useAuthStore = defineStore('authStore', () => {
     loading,
     token,
 
+    // Getters
+    isAuthenticatedCheck,
+
     // actions
     registerUser,
     signInUser,
-    refreshAuth,
     logoutUser,
   }
 })
