@@ -9,8 +9,6 @@ pnpm-debug.log*
 
 # Environment files
 server/.env
-server/.env.local
-server/.env.*.local
 
 
 # Logs
@@ -32,7 +30,8 @@ coverage/
 client/node_modules/
 client/dist/
 client/.env
-client/.env.local
+client/.env.development
+client/.env.production
 
 # Vite / Cache
 client/.vite
