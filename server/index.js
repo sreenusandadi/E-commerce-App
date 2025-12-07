@@ -15,7 +15,7 @@ const app = express();
 app.use(
   cors({
     origin: "https://stonesonline.netlify.app",
-    methods: "GET,POST,PUT,DELETE",
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
