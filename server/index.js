@@ -14,7 +14,8 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "https://e-commerce-app-qdz6.onrender.com",
+    origin: "*",
+    methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
 );
