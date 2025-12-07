@@ -24,3 +24,10 @@ export const deleteProduct = async (id) => {
   const response = await api.delete(`/api/products/${id}`)
   return response.data
 }
+
+export const imageUpload = async (formData) => {
+  const response = await api.post('/api/upload/single', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return response.data
+}

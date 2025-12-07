@@ -89,7 +89,7 @@
             >
           </li>
           <li class="nav-item" v-if="authStore.isAuthenticatedCheck">
-            <button class="nav-link btn btn-link" @click="authStore.logoutUser()">Logout</button>
+            <button class="nav-link btn btn-link" @click="handleLogout">Logout</button>
           </li>
         </ul>
       </div>
@@ -98,11 +98,16 @@
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { APP_ROUTE_NAMES } from '@/constants/routeNames'
 import { useThemeStore } from '@/stores/themeStore'
 import { useAuthStore } from '@/stores/authStore'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
+const router = useRouter()
+
+const handleLogout = () => {
+  authStore.logoutUser(router)
+}
 </script>

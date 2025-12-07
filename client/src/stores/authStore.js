@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
 
 import { signIn, signUp, signOut } from '@/services/authService'
 import { APP_ROUTE_NAMES } from '@/constants/routeNames.js'
@@ -19,16 +18,13 @@ export const useAuthStore = defineStore('authStore', () => {
 
   const user = reactive(defaultUser)
 
-  const router = useRouter()
-
   const isAuthenticatedCheck = computed(() => isAuthenticated.value)
 
-  const registerUser = async (formData) => {
+  const registerUser = async (formData, router) => {
     loading.value = true
     error.value = null
     try {
       await signUp(formData)
-      console.log(router)
       router.push({ name: APP_ROUTE_NAMES.SIGN_IN })
     } catch (err) {
       if (err.response?.status === 400) {
@@ -41,7 +37,7 @@ export const useAuthStore = defineStore('authStore', () => {
     }
   }
 
-  const signInUser = async (credentials) => {
+  const signInUser = async (credentials, router) => {
     loading.value = true
     error.value = null
     try {
@@ -49,7 +45,6 @@ export const useAuthStore = defineStore('authStore', () => {
       token.value = data.accessToken
       Object.assign(user, data.user)
       isAuthenticated.value = true
-      console.log(router)
       router.push({ name: APP_ROUTE_NAMES.HOME })
     } catch (err) {
       isAuthenticated.value = false
@@ -65,7 +60,7 @@ export const useAuthStore = defineStore('authStore', () => {
     }
   }
 
-  const logoutUser = async () => {
+  const logoutUser = async (router) => {
     loading.value = true
     error.value = null
     try {

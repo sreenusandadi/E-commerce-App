@@ -13,6 +13,8 @@ const addProduct = async (req, res) => {
       category,
       image,
     } = req.body;
+    // File exists?
+    const imagePath = req.body?.image ? req.body.image : null;
 
     const newProduct = new Product({
       name,
@@ -22,7 +24,7 @@ const addProduct = async (req, res) => {
       salePrice,
       bestSeller,
       category,
-      image,
+      image: imagePath,
     });
 
     const savedProduct = await newProduct.save();

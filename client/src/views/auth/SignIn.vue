@@ -46,8 +46,11 @@
 import { APP_ROUTE_NAMES } from '@/constants/routeNames.js'
 import { useAuthStore } from '@/stores/authStore'
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
+
+const router = useRouter()
 
 const form = reactive({
   email: '',
@@ -55,6 +58,6 @@ const form = reactive({
 })
 
 const handleSignIn = async () => {
-  await authStore.signInUser(form)
+  await authStore.signInUser(form, router)
 }
 </script>

@@ -17,17 +17,15 @@ const app = createApp(App)
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
-app.use(router)
-const authStore = useAuthStore()
 
 const themeStore = useThemeStore()
 if (themeStore.defaultTheme) {
   document.body.setAttribute('data-bs-theme', themeStore.defaultTheme)
 }
 
-let isMounted = false
-
 async function initApp() {
+  const authStore = useAuthStore()
+
   try {
     const { data } = await api.post('/api/auth/refresh')
     authStore.token = data.accessToken
@@ -39,11 +37,8 @@ async function initApp() {
     authStore.isAuthenticated = false
     Object.assign(authStore.user, defaultUser)
   }
-
-  if (!isMounted) {
-    app.mount('#app')
-    isMounted = true
-  }
+  app.use(router)
+  app.mount('#app')
 }
 
 initApp()

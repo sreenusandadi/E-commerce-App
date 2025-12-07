@@ -6,8 +6,8 @@
           <div class="card-body p-4">
             <h4 class="text-center mb-4">Create Account</h4>
             <form @submit.prevent="handleSignUp">
-              <div v-if="error" class="alert alert-danger mt-3 mb-0">
-                {{ error }}
+              <div v-if="authStore.error" class="alert alert-danger mt-3 mb-0">
+                {{ authStore.error }}
               </div>
               <div></div>
               <div class="mb-3">
@@ -70,11 +70,11 @@
 <script setup>
 import { APP_ROUTE_NAMES } from '@/constants/routeNames.js'
 import { useAuthStore } from '@/stores/authStore'
-import { reactive, ref } from 'vue'
-
-const error = ref(null)
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const form = reactive({
   email: '',
@@ -83,11 +83,6 @@ const form = reactive({
 })
 
 const handleSignUp = async () => {
-  error.value = null
-  try {
-    await authStore.registerUser(form)
-  } catch (err) {
-    error.value = err.message || 'An error occurred during registration.'
-  }
+  await authStore.registerUser(form, router)
 }
 </script>

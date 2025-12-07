@@ -74,6 +74,7 @@
       <div class="mb-3">
         <label for="category" class="form-label">Category</label>
         <select
+          id="category"
           class="form-select"
           aria-label="Default select example"
           v-model="productObj.category"
@@ -85,7 +86,12 @@
       </div>
       <div class="mb-3">
         <label for="image" class="form-label">Image</label>
-        <input class="form-control form-control-sm" id="image" type="file" />
+        <input
+          class="form-control form-control-sm"
+          id="image"
+          type="file"
+          @change="onImageChange"
+        />
       </div>
       <div class="d-flex gap-2">
         <button type="submit" class="btn btn-success px-5">
@@ -102,7 +108,7 @@
         >
       </div>
     </div>
-    <div><img src="https://placehold.co/600x400" width="100" alt="image" /></div>
+    <div><img v-if="previewImage" :src="previewImage" width="150" class="p-2" /></div>
   </form>
 </template>
 <script setup>
@@ -110,7 +116,7 @@ import { reactive, ref, onMounted } from 'vue'
 
 import { PRODUCT_CATEGORIES } from '@/constants/appConstants.js'
 import { useSwal } from '../../utility/useSwal.js'
-import { addProduct, updateProduct } from '@/services/productService.js'
+import { addProduct, updateProduct, imageUpload } from '@/services/productService.js'
 import { useRouter, useRoute } from 'vue-router'
 
 import { APP_ROUTE_NAMES } from '@/constants/routeNames.js'
@@ -136,14 +142,43 @@ const productObj = reactive({
   salePrice: 0,
   bestSeller: false,
   tags: '',
-  image: 'https://placehold.co/600x400',
+  image: null,
 })
+
+const imageFile = ref(null)
+const previewImage = ref('https://placehold.co/600x400')
+
+const onImageChange = (e) => {
+  imageFile.value = e.target.files[0]
+  previewImage.value = URL.createObjectURL(imageFile.value)
+  uploadImage(imageFile.value)
+}
+
+const uploadImage = async (imageFileValue) => {
+  if (!imageFileValue) {
+    alert('Please select an image first')
+    return
+  }
+
+  const formData = new FormData()
+  formData.append('image', imageFileValue)
+  try {
+    const res = await imageUpload(formData)
+    productObj.image = res.imageUrl
+    swal.showSuccess('Image Uploaded Successfully!')
+  } catch (error) {
+    productObj.image = null
+    console.error('Upload error:', error)
+    swal.showError('Only JPEG/PNG/WEBP allowed!')
+  }
+}
 
 const fetchProductById = async (id) => {
   //fetch product logic here
   try {
     const res = await getProductById(id)
     Object.assign(productObj, { ...res.data, tags: res.data.tags.join(', ') })
+    previewImage.value = res.data.image
   } catch (error) {
     console.error('Error fetching product by ID:', error)
   }
@@ -161,6 +196,9 @@ const handleErrors = () => {
   }
   if (productObj.category === '') {
     errorList.push('Please select a category.')
+  }
+  if (productObj.tags === '') {
+    errorList.push('Tag is required.')
   }
 }
 
