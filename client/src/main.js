@@ -9,7 +9,7 @@ import App from './App.vue'
 import router from './router/routes'
 import api from './utility/axiosInstance'
 import { useAuthStore } from './stores/authStore'
-import { defaultUser } from './stores/authStore'
+import { getDefaultUser } from './stores/authStore'
 import { useThemeStore } from './stores/themeStore'
 
 const app = createApp(App)
@@ -35,7 +35,7 @@ async function initApp() {
     console.log(error)
     authStore.token = null
     authStore.isAuthenticated = false
-    Object.assign(authStore.user, defaultUser)
+    Object.assign(authStore.user, getDefaultUser())
   }
   app.use(router)
   app.mount('#app')

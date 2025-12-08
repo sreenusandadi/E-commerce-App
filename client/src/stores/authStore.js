@@ -4,11 +4,12 @@ import { computed, reactive, ref } from 'vue'
 import { signIn, signUp, signOut } from '@/services/authService'
 import { APP_ROUTE_NAMES } from '@/constants/routeNames.js'
 
-export const defaultUser = {
+export const getDefaultUser = () => ({
   id: '',
+  name: '',
   email: '',
   role: '',
-}
+})
 
 export const useAuthStore = defineStore('authStore', () => {
   const isAuthenticated = ref(false)
@@ -16,7 +17,7 @@ export const useAuthStore = defineStore('authStore', () => {
   const loading = ref(false)
   const token = ref(null)
 
-  const user = reactive(defaultUser)
+  const user = reactive(getDefaultUser())
 
   const isAuthenticatedCheck = computed(() => isAuthenticated.value)
 
@@ -49,7 +50,7 @@ export const useAuthStore = defineStore('authStore', () => {
     } catch (err) {
       isAuthenticated.value = false
       token.value = null
-      Object.assign(user, defaultUser)
+      Object.assign(user, getDefaultUser())
       if (err.response?.status === 401 || err.response?.status === 404) {
         error.value = err.response.data.message
       } else {
@@ -68,7 +69,8 @@ export const useAuthStore = defineStore('authStore', () => {
       isAuthenticated.value = false
       token.value = null
       error.value = null
-      Object.assign(user, defaultUser)
+      Object.assign(user, getDefaultUser())
+      console.log(user, getDefaultUser())
       router.push({ name: APP_ROUTE_NAMES.SIGN_IN })
     } catch (error) {
       console.log('Error during logout:', error)

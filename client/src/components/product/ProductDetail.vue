@@ -62,7 +62,12 @@
           </div>
         </div>
         <div class="modal-footer">
-          <a href="mailto:hello@dotnetmastery.com" class="btn btn-success">Contact Us</a>
+          <a
+            :href="`mailto:${authStore?.user?.email}`"
+            class="btn btn-success"
+            :class="{ 'disabled-link': !authStore?.user?.email }"
+            >Contact Us</a
+          >
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
@@ -71,7 +76,18 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '@/stores/authStore'
 const props = defineProps({
   product: Object,
 })
+const authStore = useAuthStore()
 </script>
+
+<style scoped>
+.disabled-link {
+  pointer-events: none; /* disables click */
+  color: gray;
+  text-decoration: none;
+  cursor: not-allowed;
+}
+</style>

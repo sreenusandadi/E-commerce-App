@@ -1,114 +1,99 @@
 <template>
-  <form
-    class="container p-4 w-50 border rounded-3 my-4 shadow-sm d-flex gap-3"
-    @submit.prevent="handleSubmit"
-  >
-    <div class="flex-grow-1">
-      <h2 class="text-center text-success">{{ productId ? 'Update' : 'Create' }} Product</h2>
-      <hr />
-      <div class="alert alert-danger" v-if="errorList.length > 0">
-        <p>Please resolve following errors to continue.</p>
-        <ul class="mb-0">
-          <li v-for="(error, index) in errorList" :key="index">{{ error }}</li>
-        </ul>
+  <form class="container p-3 p-md-4 border rounded-3 my-4 shadow-sm" @submit.prevent="handleSubmit">
+    <div class="d-flex flex-column flex-md-row gap-4">
+      <!-- LEFT: FORM -->
+      <div class="flex-fill">
+        <h2 class="text-center text-success">{{ productId ? 'Update' : 'Create' }} Product</h2>
+        <hr />
+
+        <div class="alert alert-danger" v-if="errorList.length > 0">
+          <p>Please resolve following errors to continue.</p>
+          <ul class="mb-0">
+            <li v-for="(error, index) in errorList" :key="index">
+              {{ error }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Name -->
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" v-model.trim="productObj.name" />
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" rows="3" v-model="productObj.description"></textarea>
+        </div>
+
+        <!-- Price + Sale Price (2 columns on md+) -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Price</label>
+            <input type="number" class="form-control" v-model.number="productObj.price" />
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Sale Price</label>
+            <input type="number" class="form-control" v-model.number="productObj.salePrice" />
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="mb-3">
+          <label class="form-label">Tags</label>
+          <input type="text" class="form-control" v-model="productObj.tags" />
+        </div>
+
+        <!-- Best Seller -->
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" v-model="productObj.bestSeller" />
+          <label class="form-check-label">Best Seller</label>
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3">
+          <label class="form-label">Category</label>
+          <select class="form-select" v-model="productObj.category">
+            <option v-for="category in PRODUCT_CATEGORIES" :key="category">
+              {{ category }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Image -->
+        <div class="mb-3">
+          <label class="form-label">Image</label>
+          <input class="form-control" type="file" @change="onImageChange" />
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex flex-column flex-md-row gap-2">
+          <button type="submit" class="btn btn-success px-4 w-100 w-md-auto">
+            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+            Submit
+          </button>
+
+          <router-link
+            :to="{ name: APP_ROUTE_NAMES.PRODUCTS_LIST }"
+            class="btn btn-secondary px-4 w-100 w-md-auto"
+          >
+            Cancel
+          </router-link>
+        </div>
       </div>
-      <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input
-          type="text"
-          class="form-control"
-          v-model.trim="productObj.name"
-          id="name"
-          placeholder="Name"
+
+      <!-- RIGHT: IMAGE PREVIEW -->
+      <div class="text-center text-md-end">
+        <img
+          v-if="previewImage"
+          :src="previewImage"
+          class="img-fluid rounded shadow-sm"
+          style="max-width: 200px"
         />
-      </div>
-      <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <textarea
-          class="form-control"
-          v-model="productObj.description"
-          id="description"
-          placeholder="Description"
-        ></textarea>
-      </div>
-      <div class="mb-3">
-        <label for="price" class="form-label">Price</label>
-        <input
-          type="number"
-          class="form-control"
-          v-model.number="productObj.price"
-          id="price"
-          placeholder="Price"
-        />
-      </div>
-      <div class="mb-3">
-        <label for="salePrice" class="form-label">Sale Price</label>
-        <input
-          type="number"
-          class="form-control"
-          v-model.number="productObj.salePrice"
-          id="salePrice"
-          placeholder="Sale Price"
-        />
-      </div>
-      <div class="mb-3">
-        <label for="tags" class="form-label">Tags (comma-seperated)</label>
-        <input
-          type="text"
-          class="form-control"
-          v-model="productObj.tags"
-          id="tags"
-          placeholder="eg., modern, classic, luxury"
-        />
-      </div>
-      <div class="form-check form-switch mb-3">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          role="switch"
-          id="bestSellerSwitch"
-          v-model="productObj.bestSeller"
-        />
-        <label class="form-check-label" for="bestSellerSwitch">Best Seller</label>
-      </div>
-      <div class="mb-3">
-        <label for="category" class="form-label">Category</label>
-        <select
-          id="category"
-          class="form-select"
-          aria-label="Default select example"
-          v-model="productObj.category"
-        >
-          <option v-for="category in PRODUCT_CATEGORIES" :key="category" :value="category">
-            {{ category }}
-          </option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="image" class="form-label">Image</label>
-        <input
-          class="form-control form-control-sm"
-          id="image"
-          type="file"
-          @change="onImageChange"
-        />
-      </div>
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-success px-5">
-          <span
-            v-if="isLoading"
-            class="spinner-border spinner-border-sm me-2"
-            role="status"
-            aria-hidden="true"
-          ></span
-          >Submit
-        </button>
-        <router-link :to="{ name: APP_ROUTE_NAMES.PRODUCTS_LIST }" class="btn btn-secondary px-5"
-          >Cancel</router-link
-        >
       </div>
     </div>
-    <div><img v-if="previewImage" :src="previewImage" width="150" class="p-2" /></div>
   </form>
 </template>
 <script setup>
