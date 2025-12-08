@@ -16,7 +16,7 @@
         >
       </div>
       <div class="table-responsive">
-        <table class="table table-hover table-dark table-striped" v-if="products.length > 0">
+        <table class="table table-hover table-striped" v-if="products.length > 0">
           <thead>
             <tr>
               <th scope="col">Product</th>
