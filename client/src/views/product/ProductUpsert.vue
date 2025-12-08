@@ -48,8 +48,13 @@
 
         <!-- Best Seller -->
         <div class="form-check form-switch mb-3">
-          <input class="form-check-input" type="checkbox" v-model="productObj.bestSeller" />
-          <label class="form-check-label">Best Seller</label>
+          <input
+            id="bestSellerCheck"
+            class="form-check-input"
+            type="checkbox"
+            v-model="productObj.bestSeller"
+          />
+          <label for="bestSellerCheck" class="form-check-label">Best Seller</label>
         </div>
 
         <!-- Category -->

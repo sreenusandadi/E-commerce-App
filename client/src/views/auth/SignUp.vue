@@ -11,21 +11,15 @@
               </div>
               <div></div>
               <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" v-model="form.email" class="form-control" id="email" required />
+                <label class="form-label">Email</label>
+                <input type="email" v-model="form.email" class="form-control" required />
               </div>
               <div class="mb-4">
-                <label for="password" class="form-label">Password</label>
-                <input
-                  type="password"
-                  v-model="form.password"
-                  class="form-control"
-                  id="password"
-                  required
-                />
+                <label class="form-label">Password</label>
+                <input type="password" v-model="form.password" class="form-control" required />
               </div>
               <div class="mb-4">
-                <label for="role" class="form-label">Role</label>
+                <label class="form-label">Role</label>
                 <div class="d-flex gap-2">
                   <div class="form-check">
                     <input
