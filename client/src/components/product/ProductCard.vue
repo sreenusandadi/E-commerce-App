@@ -53,7 +53,7 @@
 <script setup>
 import ProductDetail from './ProductDetail.vue'
 
-const props = defineProps({
+defineProps({
   product: Object,
 })
 </script>
